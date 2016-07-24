@@ -1,0 +1,27 @@
+{
+  "name": "ng2-wordpress",
+  "version": "1.0.0",
+  "description": "Set of Angular2 components for WordPress.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shprink/ng2-wordpress.git"
+  },
+  "keywords": [
+    "wordpress",
+    "wp-api",
+    "wp-api-angularjs",
+    "angular2",
+    "angularjs",
+    "component"
+  ],
+  "author": "shprink <contact@julienrenaux.fr> (http://julienrenaux.fr/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/shprink/ng2-wordpress/issues"
+  },
+  "homepage": "https://github.com/shprink/ng2-wordpress#readme"
+}
