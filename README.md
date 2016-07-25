@@ -1,120 +1,120 @@
-# ng2-wordpress
-Set of Angular2 components for WordPress.
+# ionic-wordpress
+Set of Ionic2 components for WordPress.
 
 ## Components
 
-### [ ] wp-posts
+### [ ] ion-wp-posts
 
 ```
-<wp-posts [items]="posts"></wp-posts>
+<ion-wp-posts [items]="posts"></ion-wp-posts>
 ```
 
-### [ ] wp-post
+### [ ] ion-wp-post
 
 ```
-<wp-post [item]="post"></wp-post>
+<ion-wp-post [item]="post"></ion-wp-post>
 ```
 
-### [ ] wp-pages
+### [ ] ion-wp-pages
 
 ```
-<wp-pages [items]="pages"></wp-pages>
+<ion-wp-pages [items]="pages"></ion-wp-pages>
 ```
 
-### [ ] wp-page
+### [ ] ion-wp-page
 
 ```
-<wp-page [item]="page"></wp-page>
+<ion-wp-page [item]="page"></ion-wp-page>
 ```
 
-### [ ] wp-comments
+### [ ] ion-wp-comments
 
 ```
-<wp-comments [items]="comments"></wp-comments>
+<ion-wp-comments [items]="comments"></ion-wp-comments>
 ```
 
-### [ ] wp-comment
+### [ ] ion-wp-comment
 
 ```
-<wp-comment [item]="comment"></wp-comment>
+<ion-wp-comment [item]="comment"></ion-wp-comment>
 ```
 
-### [ ] wp-types
+### [ ] ion-wp-types
 
 ```
-<wp-types [items]="types"></wp-types>
+<ion-wp-types [items]="types"></ion-wp-types>
 ```
 
-### [ ] wp-type
+### [ ] ion-wp-type
 
 ```
-<wp-type [item]="type"></wp-type>
+<ion-wp-type [item]="type"></ion-wp-type>
 ```
 
-### [ ] wp-media
+### [ ] ion-wp-media
 
 ```
-<wp-media [items]="media"></wp-media>
+<ion-wp-media [items]="media"></ion-wp-media>
 ```
 
-### [ ] wp-media-item
+### [ ] ion-wp-media-item
 
 ```
-<wp-media-item [item]="wpMediaItem"></wp-media-item>
+<ion-wp-media-item [item]="wpMediaItem"></ion-wp-media-item>
 ```
 
-### [ ] wp-users
+### [ ] ion-wp-users
 
 ```
-<wp-users [items]="users"></wp-users>
+<ion-wp-users [items]="users"></ion-wp-users>
 ```
 
-### [ ] wp-user
+### [ ] ion-wp-user
 
 ```
-<wp-user [item]="user"></wp-user>
+<ion-wp-user [item]="user"></ion-wp-user>
 ```
 
-### [ ] wp-taxonomies
+### [ ] ion-wp-taxonomies
 
 ```
-<wp-taxonomies [items]="taxonomies"></wp-taxonomies>
+<ion-wp-taxonomies [items]="taxonomies"></ion-wp-taxonomies>
 ```
 
-### [ ] wp-taxonomy
+### [ ] ion-wp-taxonomy
 
 ```
-<wp-taxonomy [item]="taxonomy"></wp-taxonomy>
+<ion-wp-taxonomy [item]="taxonomy"></ion-wp-taxonomy>
 ```
 
-### [ ] wp-statuses
+### [ ] ion-wp-statuses
 
 ```
-<wp-statuses [items]="statuses"></wp-statuses>
+<ion-wp-statuses [items]="statuses"></ion-wp-statuses>
 ```
 
-### [ ] wp-status
+### [ ] ion-wp-status
 
 ```
-<wp-status [item]="status"></wp-status>
+<ion-wp-status [item]="status"></ion-wp-status>
 ```
 
-### [ ] wp-terms
+### [ ] ion-wp-terms
 
 ```
-<wp-terms [items]="terms"></wp-terms>
+<ion-wp-terms [items]="terms"></ion-wp-terms>
 ```
 
-### [ ] wp-term
+### [ ] ion-wp-term
 
 ```
-<wp-term [item]="term"></wp-term>
+<ion-wp-term [item]="term"></ion-wp-term>
 ```
 
-### [ ] wp-custom
+### [ ] ion-wp-custom
 
 ```
-<wp-custom [items]="custom"></wp-custom>
+<ion-wp-custom [items]="custom"></ion-wp-custom>
 ```
 
 ## Containers
@@ -125,4 +125,4 @@ You can also use redux to store the WordPress data.
 npm install --save ng2-redux redux
 ```
 
-with the `container` pattern your components are plug and play, what you need to do is to wrap your app with `<wp-provider>`.
+with the `container` pattern your components are plug and play, what you need to do is to wrap your app with `<ion-wp-provider>`.
