@@ -1,14 +1,14 @@
 {
-  "name": "ng2-wordpress",
+  "name": "ionic-wordpress",
   "version": "1.0.0",
-  "description": "Set of Angular2 components for WordPress.",
+  "description": "Set of Ionic2 components for WordPress.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/shprink/ng2-wordpress.git"
+    "url": "git+https://github.com/shprink/ionic-wordpress.git"
   },
   "keywords": [
     "wordpress",
@@ -21,7 +21,7 @@
   "author": "shprink <contact@julienrenaux.fr> (http://julienrenaux.fr/)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/shprink/ng2-wordpress/issues"
+    "url": "https://github.com/shprink/ionic-wordpress/issues"
   },
-  "homepage": "https://github.com/shprink/ng2-wordpress#readme"
+  "homepage": "https://github.com/shprink/ionic-wordpress#readme"
 }
