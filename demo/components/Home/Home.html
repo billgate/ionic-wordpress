@@ -1,0 +1,12 @@
+<ion-header transparency="true">
+    <ion-navbar>
+        <ion-title>Menu</ion-title>
+    </ion-navbar>
+</ion-header>
+<ion-content fullscreen="true" padding>
+    <ion-list inset>
+        <ion-item *ngFor="let item of menu">
+            <button block large (click)="goTo(item.component)">{{item.name}}</button>
+        </ion-item>
+    </ion-list>
+</ion-content>
