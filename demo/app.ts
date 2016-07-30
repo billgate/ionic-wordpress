@@ -2,12 +2,17 @@ import { Component, ViewChild } from '@angular/core';
 import { Events, ionicBootstrap, MenuController, Nav, Platform } from 'ionic-angular';
 import { Splashscreen, StatusBar } from 'ionic-native';
 
-// import {
-//   IONIC_WORDPRESS_PROVIDERS
-// } from 'ionic-wordpress';
+import {
+  IONIC_WORDPRESS_PROVIDERS
+} from '../dist/ionic-wordpress';
+
+import {
+  WPAPI_PROVIDERS,
+  defaultWpApi
+} from 'wp-api-angular';
 
 import Home from './components/Home/Home';
-// console.log('IONIC_WORDPRESS_PROVIDERS', IONIC_WORDPRESS_PROVIDERS)
+console.log('IONIC_WORDPRESS_PROVIDERS', IONIC_WORDPRESS_PROVIDERS)
 @Component({
   templateUrl: 'app.html'
 })

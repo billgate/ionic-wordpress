@@ -8,7 +8,7 @@ let path = require('path'),
   HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const isProd = process.env.NODE_ENV === 'production';
-const filename = isProd ? `${pkg.name}.min.js` : `${pkg.name}.js`
+const filename = isProd ? `${pkg.name}.umd.min.js` : `${pkg.name}.umd.js`
 
 copyright = copyright.replace('{pkg.name}', pkg.name)
   .replace('{pkg.description}', pkg.description)

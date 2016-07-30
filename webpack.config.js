@@ -119,6 +119,9 @@ module.exports = {
       }
     ]
   },
+  ts: {
+    configFileName: './tsconfig.demo.json'
+  },
   sassLoader: {
     includePaths: [
       "node_modules/ionic-angular",

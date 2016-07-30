@@ -1,0 +1,1220 @@
+[
+  {
+    "id": 2585,
+    "date": "2015-12-25T23:00:04",
+    "date_gmt": "2015-12-25T22:00:04",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2446"
+    },
+    "modified": "2015-12-25T23:00:04",
+    "modified_gmt": "2015-12-25T22:00:04",
+    "slug": "angular2-series-routing",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/12\/25\/angular2-series-routing\/",
+    "title": {
+      "rendered": "Angular2 series &#8211; Routing"
+    },
+    "content": {
+      "rendered": "<p>This post is part of a series of posts about Angular2. You can find them all in the introduction: <a href=\"http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/\">http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/<\/a><\/p>\n<hr \/>\n<blockquote><p>\n  Before we start and to make sure we are in line on the terminology, I will use the name AngularJS to define AngularJS 1.x and Angular2 to define AngularJS 2.x.\n<\/p><\/blockquote>\n<p>All the following code examples are part of a boilerplate I created. It is available on GitHub: <a href=\"https:\/\/github.com\/shprink\/angular2-nobullshit-boilerplate\">https:\/\/github.com\/shprink\/angular2-nobullshit-boilerplate<\/a>.<\/p>\n<hr \/>\n<p>If you are used to AngularJS applications you have probably used the <a href=\"https:\/\/github.com\/angular-ui\/ui-router\">ui-router<\/a> instead of the Angular basic router (ngRoute). The ui-router is more popular because it has more features (such as <code>nested views<\/code>) and was adopted by big projects such as Ionic Framework.<\/p>\n<p>The Angular2 router is a complete rewrite of the old <a href=\"https:\/\/docs.angularjs.org\/api\/ngRoute\">ngRoute<\/a> module. It was created keeping the ui-router use cased in mind, but also Angular2 components based architecture (a concept not yet adopted with AngularJS).<\/p>\n<p>If you want to know more details about the Router history I recommend watching this video (beware the API changed a little bit since this video):<\/p>\n<div class=\"jetpack-video-wrapper\"><span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe class='youtube-player' type='text\/html' width='660' height='402' src='http:\/\/www.youtube.com\/embed\/vecg70fPDFw?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent' allowfullscreen='true' style='border:0;'><\/iframe><\/span><\/div>\n<p>If you want to know more about components in Angular2 I suggest you to read this previous article of mine: <a href=\"http:\/\/julienrenaux.fr\/2015\/12\/13\/angular2-series-component-directive-pipe-and-service\/\">Angular2 series \u2013 Component, Directive, Pipe and Service<\/a>.<\/p>\n<h2>Path location strategies<\/h2>\n<p><strong><em>Using AngularJS<\/em><\/strong><\/p>\n<p>With the <code>ui-router<\/code> in AngularJS you have the choice between two modes. The default one, aka the <code>Hash<\/code> mode (<code>#products\/id<\/code>) that is not interpreted by servers or the <code>HTML5<\/code> mode (<code>\/products\/id<\/code>).<\/p>\n<p>One or the other can be selected using the <code>$locationProvider<\/code><\/p>\n<pre class=\"brush: plain; title: ; notranslate\" title=\"\">\n$locationProvider.html5Mode(true);\n<\/pre>\n<p><strong>Notice<\/strong>: This HTML5 mode requires your web server to be configured.<\/p>\n<p><strong><em>Using Angular2<\/em><\/strong><\/p>\n<p>In Angular2 we have the same &#8220;modes&#8221; but they are called <code>PathLocationStrategy<\/code> and <code>HashLocationStrategy<\/code>.<\/p>\n<h3>PathLocationStrategy<\/h3>\n<p><code>PathLocationStrategy<\/code> is the default strategy used by the new router. It is equivalent to the HTML5 mode in AngularJS.<\/p>\n<p>If you want to use this strategy, you must define the <code>APP_BASE_HREF<\/code> to a string representing the URL prefix that should be preserved when switching pages.<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {ROUTER_PROVIDERS, APP_BASE_HREF} from 'angular2\/router';\n\nbootstrap(yourApp, [\n  ROUTER_PROVIDERS, \/\/ includes binding to PathLocationStrategy\n  provide(APP_BASE_HREF, {useValue: '\/my\/prefix\/here'})\n]);\n<\/pre>\n<p>If you have problems understanding the above example, learn how to create an application with Angular2 first by reading: <a href=\"http:\/\/julienrenaux.fr\/2015\/12\/13\/angular2-series-component-directive-pipe-and-service\/#Application\">Angular2 series \u2013 Component, Directive, Pipe and Service<\/a>.<\/p>\n<p>If you do not want any prefix to be kept you can set <code>APP_BASE_HREF<\/code> to be:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nprovide(APP_BASE_HREF, {useValue: '\/'})\n<\/pre>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/router\/PathLocationStrategy-class.html\">Official docs<\/a><\/p>\n<h3>HashLocationStrategy<\/h3>\n<p><code>HashLocationStrategy<\/code> is the strategy equivalent to the default strategy in AngularJS <code>ui-router<\/code>. This strategy is used to configure the Location service to represent its state with the hash fragment of the browser&#8217;s URL.<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {ROUTER_PROVIDERS, LocationStrategy, HashLocationStrategy} from 'angular2\/router';\nbootstrap(yourApp, [\n  ROUTER_PROVIDERS,\n  provide(LocationStrategy, {useClass: HashLocationStrategy})\n]);\n<\/pre>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/router\/HashLocationStrategy-class.html\">Official docs<\/a><\/p>\n<h2>Define Routes<\/h2>\n<p><strong><em>Using AngularJS<\/em><\/strong><\/p>\n<p>In AngularJS and <code>ui-router<\/code> here is how to define <code>states<\/code> (or Routes) during the configuration phase:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\n$stateProvider.state('home', {\n    url: '\/',\n    templateUrl: 'home.html',\n    controller: 'HomeCtrl'\n}).state('about', {\n    url: '\/about',\n    templateUrl: 'about.html',\n    controller: 'AboutCtrl'\n})\n<\/pre>\n<p><strong><em>Using Angular2<\/em><\/strong><\/p>\n<p>In Angular2 a <code>state<\/code> is created from a <code>Route<\/code> class. Using the <code>@RouteConfig<\/code> annotation you can create your application route definition.<\/p>\n<p><code>@RouteConfig<\/code> takes as first argument an Array of <code>Route<\/code> that have the following properties:<\/p>\n<ul>\n<li><code>path<\/code> equivalent to <code>url<\/code> in <code>ui-router<\/code> states<\/li>\n<li><code>component<\/code> a component type.<\/li>\n<li><code>name<\/code> is an optional CamelCase string representing the name of the route.<\/li>\n<li><code>data<\/code> is an optional property of any type representing arbitrary route metadata for the given route (we talk about it in the <a href=\"#Passing_data_between_routes\">Passing data between routes<\/a> section)<\/li>\n<\/ul>\n<p>With that in mind let&#8217;s create an equivalent of the routes we created in the AngularJS version:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {RouteConfig, Route} from 'angular2\/router';\nimport {MyComponentHome, MyComponentAbout} from '.\/myComponents';\n@Component({\n    selector: &quot;app&quot;\n})\n@RouteConfig([\n    new Route({ path: '\/', component: MyComponentHome, name: 'Home' }),\n    new Route({ path: '\/about', component: MyComponentAbout, name: 'About' })\n])\nexport class App {...}\n<\/pre>\n<h2>Template update<\/h2>\n<p>We have now defined our Routes, the next step is to define where to display the components when switching pages.<\/p>\n<p><strong><em>Using AngularJS<\/em><\/strong><\/p>\n<p>In AngularJS and <code>ui-router<\/code> we can use the <code>ui-view<\/code> directive to insert dynamic content from each state:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;body&gt;\n    &lt;ui-view&gt;\n        &lt;i&gt;Some content will load here!&lt;\/i&gt;\n    &lt;\/ui-view&gt;\n&lt;\/body&gt;\n<\/pre>\n<p><strong><em>Using Angular2<\/em><\/strong><\/p>\n<p>Using Angular2, it is similar, only the name of the directive change!<\/p>\n<p>First we need to import the <code>RouterOutlet<\/code> directive and inject it into our App component, then we can use it in our template.<\/p>\n<pre class=\"brush: typescript; highlight: [1,6,8]; title: ; notranslate\" title=\"\">\nimport {RouterOutlet} from 'angular2\/router';\n@Component({\n    selector: &quot;app&quot;\n})\n@View({\n    directives: [RouterOutlet]\n    template: `\n      &lt;router-outlet&gt;&lt;\/router-outlet&gt;\n    `\n})\n<\/pre>\n<p>Now any location change will load a different component inside the <code>RouterOutlet<\/code> directive.<\/p>\n<h2>Navigate between pages<\/h2>\n<p><strong><em>Using AngularJS<\/em><\/strong><\/p>\n<p>To navigate between pages (or states) in AngularJS and the <code>ui-router<\/code> we can use the <code>ui-sref<\/code> directive.<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;a ui-sref=&quot;home&quot;&gt;Home page&lt;\/a&gt;\n&lt;a ui-sref=&quot;about&quot;&gt;About page&lt;\/a&gt;\n<\/pre>\n<p><strong><em>Using Angular2<\/em><\/strong><\/p>\n<p>With Angular2 we can use the <code>RouterLink<\/code> directive instead.<\/p>\n<p>This directive needs to be injected in your component first:<\/p>\n<pre class=\"brush: typescript; highlight: [1,4,6,7]; title: ; notranslate\" title=\"\">\nimport {RouterLink} from 'angular2\/router';\n@Component({\n  selector: &quot;menu&quot;,\n  directives: [RouterLink],\n  template: `\n     &lt;a [routerLink]=&quot;['.\/Home']&quot;&gt;Home page&lt;\/a&gt;\n     &lt;a [routerLink]=&quot;['.\/About']&quot;&gt;About page&lt;\/a&gt;\n  `\n})\nexport class Menu {...}\n<\/pre>\n<p>Please note that <code>[routerLink]<\/code> uses the Route <code>name<\/code> that we defined earlier in the<\/p>\n<h2>Passing data between routes<\/h2>\n<p><strong><em>Using AngularJS<\/em><\/strong><\/p>\n<p>In AngularJS we could defined URL parameters in state definitions:<\/p>\n<pre class=\"brush: jscript; highlight: [2]; title: ; notranslate\" title=\"\">\n$stateProvider.state('product.item', {\n    url: '\/product\/:id',\n    templateUrl: 'item.html',\n    controller: 'ItemCtrl'\n})\n<\/pre>\n<p>To pass the id from a state to another we have two choices. We can use the <code>ui-sref<\/code> directive or the <code>$state<\/code> service:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;a ui-sref=&quot;product.item({id: 4})&quot;&gt;Go to item 4&lt;\/a&gt;\n<\/pre>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\nfunction($state) {\n    \/\/ Go to item 4\n    $state.go('product.item', {id: 4});\n}\n<\/pre>\n<p>Then getting this data in our controller is easy using the <code>$stateParams<\/code> service:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\nfunction($stateParams) {\n    var id = $stateParams.id;\n}\n<\/pre>\n<p><strong>BEWARE:<\/strong> The concept of <code>params<\/code> (passing data between states but without using URL parameters) in the <code>ui-router<\/code> does not exist in Angular2 (see <a href=\"http:\/\/stackoverflow.com\/questions\/34463293\/whats-the-equivalent-of-state-params-angular1-ui-router-in-angular2\">my question on stackoverflow<\/a>). A similar concept exist though and it is called <code>data<\/code>.<\/p>\n<p><strong><em>Using Angular2<\/em><\/strong><\/p>\n<p>Similar to AngularJS, we can define URL parameters using <code>path<\/code> from the <code>Route<\/code> class:<\/p>\n<pre class=\"brush: typescript; highlight: [3]; title: ; notranslate\" title=\"\">\n@RouteConfig([\n    new Route({ \n        path: '\/product\/:id', \n        component: MyProductItemComponent, \n        name: 'ProductItem'\n    })\n])\nexport class App {...}\n<\/pre>\n<p>To pass the id from a <code>Route<\/code> to another we also have two choices. We can use the <code>routerLink<\/code> directive or the <code>Router<\/code> service.<\/p>\n<p>In a template:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;a [routerLink]=&quot;['.\/ProductItem', {id: 4}]&quot;&gt;Go to item 4&lt;\/a&gt;\n<\/pre>\n<p>In a Component:<\/p>\n<pre class=\"brush: typescript; highlight: [4]; title: ; notranslate\" title=\"\">\nimport {Router} from 'angular2\/router';\nclass {\n  constructor(private _router: Router) {\n    this._router.navigate( ['.\/ProductItem', { id: 4 }] );\n  }\n}\n<\/pre>\n<p>Then getting this data in a Component is easy using the <code>RouteParams<\/code> service:<\/p>\n<pre class=\"brush: typescript; highlight: [5]; title: ; notranslate\" title=\"\">\nimport {RouteParams} from 'angular2\/router';\nclass {\n  id: number;\n  constructor(private _params: RouteParams) {\n    this.id = _params.get('id');\n  }\n}\n<\/pre>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/guide\/router.html#!#route-parameter\">Official docs<\/a><\/p>\n<p>You can also retrieve data from a <code>Route<\/code> using <code>RouteData<\/code> service. I think this feature would not be used often (I probably will not use it on my applications) but it is good to know that it exists:<\/p>\n<pre class=\"brush: typescript; highlight: [6,7,8]; title: ; notranslate\" title=\"\">\n@RouteConfig([\n    new Route({ \n        path: '\/product\/:id', \n        component: MyProductItemComponent, \n        name: 'ProductItem',\n        data: {\n            isAdmin: true\n        }\n    })\n])\nexport class App {...}\n<\/pre>\n<p>You can now retrieve the <code>isAdmin<\/code> flag or any other <code>Route<\/code> metadata in your Components using the <code>RouteData<\/code> service:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nclass {\n  isAdmin: boolean;\n  constructor(private _data: RouteData) {\n    this.isAdmin = _data.get('isAdmin');\n  }\n}\n<\/pre>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/router\/RouteData-class.html\">Official docs<\/a><\/p>\n<hr \/>\n<p>Thanks for reading, you can interact about this post by leaving a comment here, or directly on <a href=\"https:\/\/twitter.com\/julienrenaux\">Twitter<\/a> and <a href=\"https:\/\/www.facebook.com\/julienrenauxblog\/\">Facebook<\/a>!<\/p>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>Learn the difference between the well known AngularJS 1.x UI-Router, and the brand new Angular2 Router.<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 2589,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      4,
+      9
+    ],
+    "tags": [
+      15,
+      16,
+      35,
+      84,
+      90
+    ],
+    "better_featured_image": {
+      "id": 2589,
+      "alt_text": "",
+      "caption": "",
+      "description": "",
+      "media_type": "image",
+      "media_details": {
+        "width": 600,
+        "height": 340,
+        "file": "2015\/12\/angular2.jpg",
+        "sizes": {
+          "thumbnail": {
+            "file": "angular2-150x150.jpg",
+            "width": 150,
+            "height": 150,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-150x150.jpg"
+          },
+          "medium": {
+            "file": "angular2-300x170.jpg",
+            "width": 300,
+            "height": 170,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-300x170.jpg"
+          }
+        },
+        "image_meta": {
+          "aperture": 0,
+          "credit": "",
+          "camera": "",
+          "caption": "",
+          "created_timestamp": 0,
+          "copyright": "",
+          "focal_length": 0,
+          "iso": 0,
+          "shutter_speed": 0,
+          "title": "",
+          "orientation": 0,
+          "keywords": []
+        }
+      },
+      "post": 2512,
+      "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2.jpg"
+    },
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2585"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2585"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2585\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media\/2589"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2585"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2585"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2585"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2587,
+    "date": "2015-12-13T10:00:42",
+    "date_gmt": "2015-12-13T09:00:42",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2454"
+    },
+    "modified": "2015-12-13T10:00:42",
+    "modified_gmt": "2015-12-13T09:00:42",
+    "slug": "angular2-series-component-directive-pipe-and-service",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/12\/13\/angular2-series-component-directive-pipe-and-service\/",
+    "title": {
+      "rendered": "Angular2 series &#8211; Component, Directive, Pipe and Service"
+    },
+    "content": {
+      "rendered": "<p>This post is part of a series of posts about Angular2. You can find them all in the introduction: <a href=\"http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/\">http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/<\/a><\/p>\n<hr \/>\n<blockquote><p>\n  Before we start and to make sure we are in line on the terminology, I will use the name AngularJS to define AngularJS 1.x and Angular2 to define AngularJS 2.x.\n<\/p><\/blockquote>\n<h2>Component<\/h2>\n<p>A component is what you used to call a directive in AngularJS. It contains a template, styles, a list of injectables (directives, services) and a selector.<\/p>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/core\/ComponentMetadata-class.html\">Official docs<\/a><\/p>\n<p>Let&#8217;s create a component that lists the US Democratic Party presidential candidates.<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {Component, View, NgFor} from 'angular2\/angular2';\n\n@Component({\n    selector: &quot;navbar&quot;,\n    directives: [NgFor], \n    styles: [`\n        li{\n          color: gray;\n        }\n    `],\n    template: `\n        &lt;h2&gt;Democratic Party presidential candidates&lt;\/h2&gt;\n        &lt;ul&gt;\n            &lt;li *ngFor=&quot;#item of items; #i = index&quot;&gt;{{item}} {{i}}&lt;\/li&gt;\n        &lt;\/ul&gt;\n    `\n})\nexport class Navbar {\n    items: Array&lt;String&gt;\n\n    constructor() {\n      this.items = [\n        &quot;Hillary Clinton&quot;,\n        &quot;Martin O'Malley&quot;,\n        &quot;Bernie Sanders&quot;\n      ]\n    }\n\n    ngOnInit() {\n        console.log('[Component] navbar ngOnInit');\n    }\n}\n<\/pre>\n<p>When a component is instantiated, Angular2 creates a shadow DOM for the component (Shadow DOM provides encapsulation for the JavaScript, CSS, and templating in a Web Component). Then, the template and styles are injected inside it.<\/p>\n<p>Learn a bit more about Web component and specifically about the <code>&lt;template&gt;<\/code> tag by reading the previous article of this series of posts: <a href=\"http:\/\/julienrenaux.fr\/2015\/12\/02\/angular2-series-template-syntax\/#_symbol\">Angular2 series \u2013 Template Syntax<\/a>.<\/p>\n<p>You can now use your component by inserting it into your html page:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;navbar&gt;&lt;\/navbar&gt;\n<\/pre>\n<h3>Demo<\/h3>\n<p><a href=\"http:\/\/embed.plnkr.co\/cUCWoUDRzd31YRRbo5Rg\/preview\" target=\"_blank\"><img src=\"http:\/\/julienrenaux.fr\/wp-content\/uploads\/2015\/12\/Screen-Shot-2015-12-12-at-19.32.27.png\" alt=\"Screen Shot 2015-12-12 at 19.32.27\" width=\"446\" height=\"127\" class=\"alignnone size-full wp-image-2571\" \/><\/a><\/p>\n<p><a href=\"http:\/\/embed.plnkr.co\/cUCWoUDRzd31YRRbo5Rg\/preview\">http:\/\/embed.plnkr.co\/cUCWoUDRzd31YRRbo5Rg\/preview<\/a><\/p>\n<h3>Lifecycle hooks<\/h3>\n<p>In the previous example, we used the <code>ngOnInit<\/code> Class method to dump a message <code>[Component] navbar ngOnInit<\/code> in the console. It is called only when the component is initiated. It exists several hooks that make your life easier when it comes to plug yourself in between component life phases.<\/p>\n<ul>\n<li><code>ngOnChanges<\/code> (if any bindings have changed)<\/li>\n<li><code>ngOnInit<\/code> (after the first check only)<\/li>\n<li><code>ngOnDestroy<\/code> (at the very end before destruction) Implement this interface to get notified when any data-bound property of your directive changes<\/li>\n<li><code>ngDoCheck<\/code><\/li>\n<li><code>ngAfterContentInit<\/code><\/li>\n<li><code>ngAfterContentChecked<\/code><\/li>\n<li><code>ngAfterViewInit<\/code><\/li>\n<li><code>ngAfterViewChecked<\/code><\/li>\n<\/ul>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/lifecycle_hooks\/OnChanges-interface.html\">Official docs<\/a><\/p>\n<hr \/>\n<h2>Directive<\/h2>\n<p>Directives allow you to attach behaviour to elements in the DOM. It is also what you used to call a directive in AngularJS, but without a proper view. You can therefore place as many directives as you want on one DOM-element. This is not possible with components.<\/p>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/core\/Directive-var.html\">Official docs<\/a><\/p>\n<p>Let&#8217;s get back to our previous component and this time, let&#8217;s make our presidential candidates red. To do so, we are going to create the <code>redify<\/code> directive:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {Directive, ElementRef, Renderer} from 'angular2\/angular2';\n\n@Directive({\n  selector: '[redify]'\n})\nexport class Redify {\n  constructor(private _element: ElementRef, private renderer: Renderer) {\n      renderer.setElementStyle(_element, 'color', 'red');\n  }\n}\n<\/pre>\n<p>Notice that in order to obtain a reference to our Presidential Candidate element we injected <code>_element: ElementRef<\/code>.<\/p>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/core\/ElementRef-class.html\">Official docs for ElementRef<\/a><\/p>\n<p>To modify the element style we injected <code>renderer: Renderer<\/code>, which is a service that gives you methods to manipulate the style of a particular element.<\/p>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/core\/Renderer-class.html\">Official docs for Renderer<\/a><\/p>\n<p>Then we can add the <code>redify<\/code> directive to our component:<\/p>\n<pre class=\"brush: typescript; highlight: [5,8]; title: ; notranslate\" title=\"\">\nimport {Redify} from 'path\/to\/your\/Redify\/directive';\n\n@Component({\n    selector: &quot;navbar&quot;,\n    directives: [NgFor, Redify], \n    ...\n    template: `\n        &lt;li redify *ngFor=&quot;#item of items; #i = index&quot;&gt;{{item}} {{i}}&lt;\/li&gt;\n    `\n})\n<\/pre>\n<h3>Result<\/h3>\n<p><a href=\"http:\/\/embed.plnkr.co\/iJiZVqixM0qAo4RMelB7\/preview\" target=\"_blank\"><img src=\"http:\/\/julienrenaux.fr\/wp-content\/uploads\/2015\/12\/Screen-Shot-2015-12-12-at-19.28.28.png\" alt=\"Screen Shot 2015-12-12 at 19.28.28\" width=\"452\" height=\"130\" class=\"alignnone size-full wp-image-2568\" \/><\/a><\/p>\n<p><a href=\"http:\/\/embed.plnkr.co\/iJiZVqixM0qAo4RMelB7\/preview\">http:\/\/embed.plnkr.co\/iJiZVqixM0qAo4RMelB7\/preview<\/a><\/p>\n<hr \/>\n<h2>Pipe<\/h2>\n<p>A pipe in Angular2 is the equivalent of filters in AngularJS. As in AngularJS, pipes can be stateless (pure functions, not reevaluated) or stateful (has dependencies that can modify the output).<\/p>\n<p>A better explanation of what is a pipe is available in the previous article of this series of posts: <a href=\"http:\/\/julienrenaux.fr\/2015\/12\/02\/angular2-series-template-syntax\/#Pipe\">Angular2 series \u2013 Template Syntax<\/a><\/p>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/core\/Pipe-var.html\">Official docs<\/a><\/p>\n<p>Let&#8217;s get back again to our previous component and this time, let&#8217;s create a pipe to transform our presidential candidates last name to uppercase.<\/p>\n<p>First we create <code>lastnameUppercase<\/code> pipe:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {Pipe} from 'angular2\/angular2';\n\n@Pipe({\n  name: 'lastnameUppercase'\n})\nexport class LastnameUppercase {\n  transform(v, args) {\n    return `${v.split(' ')[0]} ${v.split(' ')[1].toUpperCase()}`;\n  }\n}\n<\/pre>\n<p>Then let&#8217;s add this pipe to our <code>navbar<\/code> component in order to consume it.<\/p>\n<pre class=\"brush: typescript; highlight: [5]; title: ; notranslate\" title=\"\">\nimport {LastnameUppercase} from '.\/pipes';\n@Component({\n    selector: &quot;navbar&quot;,\n    ...\n    pipes: [LastnameUppercase],\n    template: `\n        &lt;li redify *ngFor=&quot;#item of items; #i = index&quot;&gt;{{item | lastnameUppercase}} {{i}}&lt;\/li&gt;\n    `\n})\n<\/pre>\n<h3>Demo<\/h3>\n<p><a href=\"http:\/\/embed.plnkr.co\/L1ERY1Pn6qmGl0B1hi0K\/preview\" target=\"_blank\"><img src=\"http:\/\/julienrenaux.fr\/wp-content\/uploads\/2015\/12\/Screen-Shot-2015-12-12-at-19.37.13.png\" alt=\"Screen Shot 2015-12-12 at 19.37.13\" width=\"445\" height=\"128\" class=\"alignnone size-full wp-image-2572\" \/><\/a><\/p>\n<p><a href=\"http:\/\/embed.plnkr.co\/L1ERY1Pn6qmGl0B1hi0K\/preview\">http:\/\/embed.plnkr.co\/L1ERY1Pn6qmGl0B1hi0K\/preview<\/a><\/p>\n<h3>Built in pipes<\/h3>\n<p>In Angular2 you have access to the following pipes for free:<\/p>\n<ul>\n<li><code>currency<\/code><\/li>\n<li><code>date<\/code><\/li>\n<li><code>uppercase<\/code><\/li>\n<li><code>json<\/code><\/li>\n<li><code>limitTo<\/code><\/li>\n<li><code>lowercase<\/code><\/li>\n<li><code>async<\/code><\/li>\n<li><code>decimal<\/code><\/li>\n<li><code>percent<\/code><\/li>\n<\/ul>\n<hr \/>\n<h2>Service<\/h2>\n<p>Now that we saw how to create a component, a directive and a pipe, we are going to clean up our code and separate the data retrieval (the presidential candidates) into a service.<\/p>\n<p><a href=\"https:\/\/angular.io\/docs\/ts\/latest\/api\/core\/InjectableMetadata-class.html\">Official docs<\/a><\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {Injectable} from 'angular2\/angular2';\n\n@Injectable()\nexport class PresidentialCandidate {\n\n    constructor() {}\n\n    getRepublicainList() {\n        return [\n        &quot;Donald Trump&quot;,\n        &quot;Rand Paul&quot;,\n        &quot;Ben Carson&quot;\n      ]\n    }\n\n    getDemocraticList() {\n        return [\n        &quot;Hillary Clinton&quot;,\n        &quot;Martin O'Malley&quot;,\n        &quot;Bernie Sanders&quot;\n      ]\n    }\n}\n<\/pre>\n<p>Now let&#8217;s consume this service on our <code>navbar<\/code> component:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {PresidentialCandidate} from '.\/services';\n\n@Component({\n    selector: &quot;navbar&quot;,\n    providers: [PresidentialCandidate],\n    ...\n    template: `\n        &lt;h2&gt;Democratic Party presidential candidates&lt;\/h2&gt;\n        &lt;ul&gt;\n        &lt;li redify *ngFor=&quot;#item of democrats; #i = index&quot;&gt;{{item | lastnameUppercase}} {{i}}&lt;\/li&gt;\n        &lt;\/ul&gt;\n        &lt;h2&gt;Republican Party presidential candidates&lt;\/h2&gt;\n        &lt;ul&gt;\n        &lt;li redify *ngFor=&quot;#item of republicans; #i = index&quot;&gt;{{item | lastnameUppercase}} {{i}}&lt;\/li&gt;\n        &lt;\/ul&gt;\n    `\n})\nexport class Navbar {\n    democrats: Array&lt;String&gt;\n    republicans: Array&lt;String&gt;\n\n    constructor(private presidentialService :PresidentialCandidate) {\n      this.democrats = presidentialService.getDemocraticList(); \n      this.republicans = presidentialService.getRepublicainList();\n    }\n}\n<\/pre>\n<p>We have decoupled the presidential candidates retrieval with the component that displays them. It is now easier for other components to consume this data.<\/p>\n<h3>Demo<\/h3>\n<p><a href=\"http:\/\/embed.plnkr.co\/z1B96b4OX7BHwkT0492G\/preview\" target=\"_blank\"><img src=\"http:\/\/julienrenaux.fr\/wp-content\/uploads\/2015\/12\/Screen-Shot-2015-12-12-at-19.40.57.png\" alt=\"Screen Shot 2015-12-12 at 19.40.57\" width=\"462\" height=\"259\" class=\"alignnone size-full wp-image-2573\" \/><\/a><\/p>\n<p><a href=\"http:\/\/embed.plnkr.co\/z1B96b4OX7BHwkT0492G\/preview\">http:\/\/embed.plnkr.co\/z1B96b4OX7BHwkT0492G\/preview<\/a><\/p>\n<hr \/>\n<h2>Application<\/h2>\n<h4>AngularJS<\/h4>\n<p>With AngularJS an application was a simple module. It had no difference from any other module of your application.<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\nangular.module('yourApp', []);\n<\/pre>\n<h4>Angular2<\/h4>\n<p>With Angular2, it is similar. An application is a simple component as any other component of your application. It is just the root component that basically contains the scaffolding of your page.<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\n@Component({\n    selector: &quot;yourApp&quot;\n})\n@View({\n    directives: [Header, Navbar, Content, Footer]\n    template: `\n      &lt;header&gt;&lt;\/header&gt;\n      &lt;navbar&gt;&lt;\/navbar&gt;\n      &lt;content&gt;&lt;\/content&gt;\n      &lt;footer&gt;&lt;\/footer&gt;\n    `\n})\nexport class App {\n  constructor() {\n   \n  }\n}\n<\/pre>\n<p><code>Header<\/code>, <code>Navbar<\/code>, <code>Content<\/code> and <code>Footer<\/code> are custom components, they do not exist within Angular2 core.<\/p>\n<h3>Bootstrap<\/h3>\n<p>Now that you know how to create components and a root component (or app), you need to bootstrap the application.<\/p>\n<h4>AngularJS<\/h4>\n<p>In AngularJS you could use <code>angular.bootstrap(document, ['yourApp']);<\/code> or the <code>ng-app<\/code> directive <code>&lt;body ng-app=\"yourApp\"&gt;<\/code>.<\/p>\n<h4>Angular2<\/h4>\n<p>In Angular2 it is very similar.<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nimport {bootstrap} from 'angular2\/angular2';\nimport {yourApp} from 'path\/to\/your\/app\/component';\n\nbootstrap(yourApp, []);\n<\/pre>\n<p>Our application is now ready to be rendered. Insert your app component in your <code>index.html<\/code> file and reload the browser, your app is ready!<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;body&gt;\n    &lt;app&gt;\n        Loading...\n    &lt;\/app&gt;\n&lt;\/body&gt;\n<\/pre>\n<hr \/>\n<p>Thanks for reading, you can interact about this post by leaving a comment here, or directly on <a href=\"https:\/\/twitter.com\/julienrenaux\">Twitter<\/a> and <a href=\"https:\/\/www.facebook.com\/julienrenauxblog\/\">Facebook<\/a>!<\/p>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>Learn how to create Components, Directives, Pipes and Services with Angular2<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 2589,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      4,
+      9
+    ],
+    "tags": [
+      15,
+      16,
+      35,
+      84,
+      90
+    ],
+    "better_featured_image": {
+      "id": 2589,
+      "alt_text": "",
+      "caption": "",
+      "description": "",
+      "media_type": "image",
+      "media_details": {
+        "width": 600,
+        "height": 340,
+        "file": "2015\/12\/angular2.jpg",
+        "sizes": {
+          "thumbnail": {
+            "file": "angular2-150x150.jpg",
+            "width": 150,
+            "height": 150,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-150x150.jpg"
+          },
+          "medium": {
+            "file": "angular2-300x170.jpg",
+            "width": 300,
+            "height": 170,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-300x170.jpg"
+          }
+        },
+        "image_meta": {
+          "aperture": 0,
+          "credit": "",
+          "camera": "",
+          "caption": "",
+          "created_timestamp": 0,
+          "copyright": "",
+          "focal_length": 0,
+          "iso": 0,
+          "shutter_speed": 0,
+          "title": "",
+          "orientation": 0,
+          "keywords": []
+        }
+      },
+      "post": 2512,
+      "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2.jpg"
+    },
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2587"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2587"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2587\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media\/2589"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2587"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2587"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2587"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2586,
+    "date": "2015-12-02T07:00:56",
+    "date_gmt": "2015-12-02T06:00:56",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2451"
+    },
+    "modified": "2015-12-02T07:00:56",
+    "modified_gmt": "2015-12-02T06:00:56",
+    "slug": "angular2-series-template-syntax",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/12\/02\/angular2-series-template-syntax\/",
+    "title": {
+      "rendered": "Angular2 series &#8211; Template Syntax"
+    },
+    "content": {
+      "rendered": "<p>This post is part of a series of posts about Angular2. You can find them all in the introduction: <a href=\"http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/\">http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/<\/a><\/p>\n<hr \/>\n<blockquote><p>\n  Before we start and to make sure we are in line on the terminology, I will use the name AngularJS to define AngularJS 1.x and Angular2 to define AngularJS 2.x.\n<\/p><\/blockquote>\n<p>To understand the code blocks in that <a href=\"http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/\">Angular2 series of posts<\/a>, we need to learn a bit about the new Angular2 template syntax.<\/p>\n<blockquote><p>\n  Be careful, as of alpha52 core directives syntax changes from kebab case to camel case. Example: <code>ng-if<\/code> becomes <code>ngIf<\/code>. For more information <a href=\"https:\/\/github.com\/angular\/angular\/blob\/master\/modules\/angular2\/docs\/migration\/kebab-case.md\">read the migration docs<\/a>\n<\/p><\/blockquote>\n<h2>Bind property<\/h2>\n<h4>AngularJS<\/h4>\n<p>With AngularJS, binding a given expression to a property value requires to use either a core directive such as <a href=\"https:\/\/docs.angularjs.org\/api\/ng\/directive\/ngValue\">ng-value<\/a> or use AngularJS markup <code>{{}}<\/code>.<\/p>\n<p><code>ng-value<\/code> is expecting an AngularJS expression, whose value will be bound to the <code>value<\/code> attribute of the <code>input<\/code> element:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;input ng-value=&quot;firstName&quot; \/&gt;\n<\/pre>\n<p>But you could also use it that way:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;input value=&quot;{{firstName}}&quot; \/&gt;\n<\/pre>\n<h4>Angular2<\/h4>\n<p>With Angular2 it is similar, without the need to use a specific directive. Only the new syntax is necessary <code>[value]<\/code> and it is not limited to <code>value<\/code>, you can use it to bind anything to any particular element property:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;input [value]=&quot;firstName&quot; [placeholder]=&quot;firstNamePlaceholder&quot; \/&gt;\n<\/pre>\n<p>Exactly like AngularJS you can use the following:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;input value=&quot;{{firstName}}&quot; placeholder=&quot;{{firstNamePlaceholder}}&quot; \/&gt;\n<\/pre>\n<hr \/>\n<h2>Event<\/h2>\n<h4>AngularJS<\/h4>\n<p>With AngularJS we need to use special directives to listen to events. The most famous being <a href=\"https:\/\/docs.angularjs.org\/api\/ng\/directive\/ngClick\">ng-click<\/a>. Ng-click listen to the <code>onClick<\/code> event. Here is the list of all the HMTL5 events that you can normally listen to: <a href=\"http:\/\/www.w3schools.com\/tags\/ref_eventattributes.asp\">http:\/\/www.w3schools.com\/tags\/ref_eventattributes.asp<\/a><\/p>\n<p>Most of the HTML5 events are covered by AngularJS directives such as <code>ng-blur<\/code>, <code>ng-change<\/code>, <code>ng-focus<\/code>, <code>ng-keyup<\/code> etc.<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;button ng-click=&quot;doSomething($event)&quot;&gt;\n<\/pre>\n<h4>Angular2<\/h4>\n<p>With Angular2 you can listen to any HTML5 native element event using this special syntax: <code>(eventName)<\/code><\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;button (click)=&quot;doSomething($event)&quot;&gt;\n<\/pre>\n<hr \/>\n<h2>Two-way data binding<\/h2>\n<p>Angular2 also has a two-way data binding in place but do not use the famous and decried &#8220;digest cycle&#8221; of AngularJS. Instead, Angular2 uses <a href=\"https:\/\/github.com\/angular\/zone.js\/\">zone.js<\/a>.<\/p>\n<blockquote><p>\n  A zone is an execution context that persists across async tasks.\n<\/p><\/blockquote>\n<p>If you want to make sense out of this sentence I suggest you watch this talk by Brian Ford:<\/p>\n<div class=\"jetpack-video-wrapper\"><span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe class='youtube-player' type='text\/html' width='660' height='402' src='http:\/\/www.youtube.com\/embed\/3IqtmUscE_U?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent' allowfullscreen='true' style='border:0;'><\/iframe><\/span><\/div>\n<p>Basically zone.js gives Angular2 a low level foundation that let it instrument the browser and let it know when asynch operations are finished.<\/p>\n<p>That way, you can combine <code>event<\/code> and <code>bind property<\/code> syntaxes that we saw before:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;input type=&quot;text&quot; [value]=&quot;firstName&quot; (input)=&quot;firstName=$event.target.value&quot; \/&gt;\n<\/pre>\n<p>That being said, <code>ngModel<\/code> can be used as a simplified version of what we have above:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;input type=&quot;text&quot; [(ngModel)]=&quot;firstName&quot; \/&gt;\n<\/pre>\n<p>The result is identical.<\/p>\n<p><strong><em>Pro tip:<\/em><\/strong> you can also <a href=\"http:\/\/plnkr.co\/edit\/lY9m8HLy7z06vDoUaSN2?p=preview\">run anything outside the Angular2 zone<\/a> using the <code>NgZone<\/code> service. The most common use of this service is to optimize performance when starting a work consisting of one (or more) asynchronous task that does not require UI updates.<\/p>\n<hr \/>\n<h2>Local variable<\/h2>\n<p>A local template variable is a vehicle for moving data across element lines. As far as I know, there is no equivalent of local variable in AngularJS. A local variable <code>#<\/code> can be a pointer to an object or an DOM element.<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;video #movieplayer ...&gt;\n  &lt;button (click)=&quot;movieplayer.play()&quot;&gt;\n&lt;\/video&gt;\n<\/pre>\n<p>In the above example, having the <code>movieplayer<\/code> allows us to manipulate the <code>video<\/code> HTML5 api on the same element, its siblings or its children.<\/p>\n<p><strong><em>Pro tip:<\/em><\/strong> <code>#<\/code> is the canonical version of the local variable. You can also use it with <code>var-<\/code>. In our movieplayer case we could have <code>var-movieplayer<\/code> instead of <code>#movieplayer<\/code>.<\/p>\n<hr \/>\n<h2>* symbol<\/h2>\n<p>This is probably the most disturbing syntax choice of the new Angular2 syntax. It is actually pretty simple to understand what it does if you have a little background on what the <code>template<\/code> tag is.<\/p>\n<h4>template tag<\/h4>\n<p>The template tag allows you to declare a piece of DOM that can be instantiated after run time. It guaranties better performance and the usage of a resource only when needed.<\/p>\n<p>Here is an example to be clearer:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;div style=&quot;display:none&quot;&gt;\n  &lt;img src=&quot;path\/to\/your\/image.png&quot; \/&gt;\n&lt;\/div&gt;\n<\/pre>\n<p>As you can see, the image will not be displayed because of <code>display:none<\/code> on its parent. The problem is that the browser will prefetch this image whether you use it or not. It is a waste of resource and can impact your page performance.<\/p>\n<p>The solution to this very problem is to use the <code>template<\/code> tag!<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;template&gt;\n  &lt;img src=&quot;path\/to\/your\/image.png&quot; \/&gt;\n&lt;\/template&gt;\n<\/pre>\n<p>The image in the above example will not be fetch by the browser until we instantiate the template.<\/p>\n<p>Let&#8217;s get back to the * symbol now. Using it on a element will turn it into an embedded template:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;hero-detail *ngIf=&quot;isActive&quot; [hero]=&quot;currentHero&quot;&gt;&lt;\/hero-detail&gt;\n<\/pre>\n<p>The following will be transformed as:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;template [ngIf]=&quot;isActive&quot;&gt;\n  &lt;hero-detail [hero]=&quot;currentHero&quot;&gt;&lt;\/hero-detail&gt;\n&lt;\/template&gt;\n<\/pre>\n<p>Now that I explained what the <code>template<\/code> tag is for, it is easy to understand that the * symbol is used by conditional directives such as <code>ngFor<\/code>, <code>ngIf<\/code>, and <code>ngSwitch<\/code>. Indeed, <code>&lt;hero-detail&gt;<\/code> component does not need to be instantiated until <code>isActive<\/code> is <code>true<\/code>.<\/p>\n<hr \/>\n<h2>Pipe<\/h2>\n<p>A pipe in Angular2 is the equivalent of filters in AngularJS. As in AngularJS, pipes can be stateless (pure functions, not reevaluated) or stateful (has dependencies that can modify the output).<\/p>\n<h3>Stateful<\/h3>\n<p>In Angular2, most built-in pipes are stateless, it is the case with <code>DatePipe<\/code>, <code>UpperCasePipe<\/code>, <code>LowerCasePipe<\/code>, <code>CurrencyPipe<\/code>, and <code>PercentPipe<\/code>.<\/p>\n<p>You can use them that way:<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;p&gt;My birthday is {{ birthday | date:&quot;MM\/dd\/yy&quot; }} &lt;\/p&gt;\n<\/pre>\n<p>and even chain them (same as AngularJS):<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n{{ birthday | date | uppercase}}\n<\/pre>\n<h3>Stateful<\/h3>\n<p>The <code>Async<\/code> pipe is a built-in stateful pipe. It can receive a Promise or Observable as input and subscribe to the input automatically, eventually returning the emitted value(s).<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\n@Component({\n  selector: 'my-hero',\n  template: 'Message: {{delayedMessage | async}}',\n})\nclass MyHeroAsyncMessageComponent {\n  delayedMessage:Promise&lt;string&gt; = new Promise((resolve, reject) =&gt; {\n    setTimeout(() =&gt; resolve('You are my Hero!'), 500);\n  });\n}\n<\/pre>\n<p>Here, <code>&lt;my-hero&gt;<\/code> component will display <code>Message: You are my Hero!<\/code> only once the <code>delayedMessage<\/code> promise is resolved.<\/p>\n<hr \/>\n<h2>Elvis operator<\/h2>\n<p>In JavaScript, you often end up checking the existence of object properties. For instance I am sure you have written that kind of conditions before:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\nif (cordova &amp;&amp; cordova.plugins &amp;&amp; cordova.plugins.notification){\n  \/\/ use cordova.plugins.notification\n}\n<\/pre>\n<p>All of this to avoid such an error <code>TypeError: Cannot read property 'notification' of undefined<\/code>.<\/p>\n<p><strong><em>Pro tip:<\/em><\/strong> you can simplify it using <a href=\"https:\/\/lodash.com\/docs#get\">lodash<\/a> <code>_.get<\/code> function. The previous example could be written that way:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\nif (_.get(cordova, 'plugins.notification')){\n  \/\/ use cordova.plugins.notification\n}\n<\/pre>\n<p>Even if <code>plugins<\/code> is not defined <code>_.get<\/code> will return <code>undefined<\/code>.<\/p>\n<p>The Elvis operator (?) in Angular2 fixes that very problem but in the template side.<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;p&gt;Employer: {{employer?.companyName}}&lt;\/p&gt;\n<\/pre>\n<p>Here the employer field is optional and if <code>undefined<\/code>, the rest of the expression should be ignored. Without the Elvis operator here you will get a <code>TypeError<\/code>.<\/p>\n<p>It also works with long property path: <code>a?.b?.c?.d<\/code><\/p>\n<hr \/>\n<p>Thanks for reading, you can interact about this post by leaving a comment here, or directly on <a href=\"https:\/\/twitter.com\/julienrenaux\">Twitter<\/a> and <a href=\"https:\/\/www.facebook.com\/julienrenauxblog\/\">Facebook<\/a>!<\/p>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>Angular2  new template syntax is important to understand before starting learning it. Event, Bind property and * syntax  are simply explained in this post.<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 2589,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      4,
+      9
+    ],
+    "tags": [
+      15,
+      16,
+      35,
+      84,
+      90
+    ],
+    "better_featured_image": {
+      "id": 2589,
+      "alt_text": "",
+      "caption": "",
+      "description": "",
+      "media_type": "image",
+      "media_details": {
+        "width": 600,
+        "height": 340,
+        "file": "2015\/12\/angular2.jpg",
+        "sizes": {
+          "thumbnail": {
+            "file": "angular2-150x150.jpg",
+            "width": 150,
+            "height": 150,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-150x150.jpg"
+          },
+          "medium": {
+            "file": "angular2-300x170.jpg",
+            "width": 300,
+            "height": 170,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-300x170.jpg"
+          }
+        },
+        "image_meta": {
+          "aperture": 0,
+          "credit": "",
+          "camera": "",
+          "caption": "",
+          "created_timestamp": 0,
+          "copyright": "",
+          "focal_length": 0,
+          "iso": 0,
+          "shutter_speed": 0,
+          "title": "",
+          "orientation": 0,
+          "keywords": []
+        }
+      },
+      "post": 2512,
+      "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2.jpg"
+    },
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2586"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2586"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2586\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media\/2589"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2586"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2586"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2586"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2588,
+    "date": "2015-11-30T02:41:14",
+    "date_gmt": "2015-11-30T01:41:14",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2478"
+    },
+    "modified": "2015-11-30T02:41:14",
+    "modified_gmt": "2015-11-30T01:41:14",
+    "slug": "angular2-series-tooling",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/11\/30\/angular2-series-tooling\/",
+    "title": {
+      "rendered": "Angular2 series &#8211; Tooling"
+    },
+    "content": {
+      "rendered": "<p>This post is part of a series of posts about Angular2. You can find them all in the introduction: <a href=\"http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/\">http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/<\/a><\/p>\n<hr \/>\n<p>Tooling is really important when starting a new project. This post presents my favorite tool stack (TypeScript &amp; Webpack) and explain why you should use it too with Angular2.<\/p>\n<blockquote><p>\n  Angular2 does not require any of the following tools, the choice is entirely yours to use them or not.\n<\/p><\/blockquote>\n<h2>ECMAScript6<\/h2>\n<blockquote><p>\n  ECMAScript 2015 (6th Edition) is the current version of the ECMAScript Language Specification standard. ES6 got officially approved and published as a standard on June 17, 2015 by the ECMA General Assembly.\n<\/p><\/blockquote>\n<p>Angular 2 requires ES6 support, but ES6 is only available on modern browsers. For older browsers (including IE 11) you can use a shim to get the needed functionality.<\/p>\n<pre class=\"brush: xml; title: ; notranslate\" title=\"\">\n&lt;script src=&quot;..\/node_modules\/es6-shim\/es6-shim.js&quot;&gt;&lt;\/script&gt;\n<\/pre>\n<p>If you use a compilation phase (using Gulp, Grunt, Webpack or Browserify), which I recommend (see last paragraph about Webpack) you could directly compile your ES6 code into ES5 instead of using <code>es6-shim<\/code>. ES5 is <a href=\"http:\/\/caniuse.com\/#feat=es5\">available on most browsers<\/a>.<\/p>\n<p>If you want to have a complete overview of what ES6 new features are, I recommend reading the <a href=\"https:\/\/babeljs.io\/docs\/learn-es2015\/\">this great babeljs doc<\/a><\/p>\n<h3>Class<\/h3>\n<p>Classes are used everywhere in Angular2, a Service is a Class, a Component is also a Class and a Directive is&#8230; a Class. It is therefore important to learn a bit about them.<\/p>\n<p>ES6 introduced Classes (available for a long time in CoffeeScript). Classes are a simple sugar over the prototype-based object oriented pattern. If you come from an object oriented language such as Java, Php or C++ you are already accustomed to classes.<\/p>\n<p>Here is simple example from a book that I love <a href=\"http:\/\/addyosmani.com\/resources\/essentialjsdesignpatterns\/book\/\">JavaScript Design Patterns by Addy Osmani<\/a>:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nclass Car {\n  constructor(model, km) {\n    this.model = model;\n    this.km = km;\n  }\n  drive(km) {\n    this.km = this.km + km;\n  }\n  getKm() {\n    return `${this.km} km`;\n  }\n}\n<\/pre>\n<p>Classes support inheritance, super calls and static methods.<\/p>\n<h4>Instantiation<\/h4>\n<p>Let&#8217;s play with our new car! We are going to instantiate a used car and drive it a little:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nlet twingo = new Car(&quot;Renault Twingo&quot;,100000);\nconsole.log(twingo.getKm()); \/\/ dump: 100000 km\n\n\/\/ Drive 150km\ntwingo.drive(150);\nconsole.log(twingo.getKm()); \/\/ dump: 100150 km\n<\/pre>\n<h4>Access static methods<\/h4>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\nclass Car {\n  ...\n  static getWheels(){\n    return 4;\n  }\n}\n\nconsole.log(Car.getWheels()); \/\/ dump: 4\n<\/pre>\n<p>Calling getWheels static function on a Car instance <code>twingo.getWheels()<\/code> will result as <code>twingo.getWheels is not a function<\/code>..<\/p>\n<p>All of these examples are <a href=\"http:\/\/plnkr.co\/edit\/qf29cdU4OmoY1hYDBs7R?p=preview\">available on plunker<\/a>.<\/p>\n<hr \/>\n<h2>TypeScript<\/h2>\n<p>TypeScript is a super-set of ES6, meaning that when writing TypeScript code you have access to all ES6 new features such as arrow functions, generator, multiline strings etc. It also means that you can rename your ES6 based files from <code>.js<\/code> to <code>.ts<\/code> without any problem.<\/p>\n<p>If you are used to ECMAScript6, jumping to TypeScript should not be difficult at all. While you are not forced to use TypeScript when developing Angular2 applications, I I still recommend using it for several reasons:<\/p>\n<h3>ES6 shim not needed anymore<\/h3>\n<p>TypeScript can also transform your code into ES5 (<a href=\"http:\/\/caniuse.com\/#feat=es5\">available on most browsers<\/a>).<\/p>\n<p>To do that, add a <code>tsconfig.json<\/code> file to the root of your project and specify the compile option to be ES5:<\/p>\n<pre class=\"brush: jscript; highlight: [3]; title: ; notranslate\" title=\"\">\n{\n  &quot;compilerOptions&quot;: {\n    &quot;target&quot;: &quot;es5&quot;,\n    &quot;module&quot;: &quot;commonjs&quot;,\n    ...\n  }\n}\n<\/pre>\n<h3>Optional typing<\/h3>\n<p>TypeScript enables the optional typing. It means that if we want to force a type on a Class property we can do it that way:<\/p>\n<pre class=\"brush: typescript; highlight: [2,3,4,8]; title: ; notranslate\" title=\"\">\nexport class Car {\n    model: string;\n    km: number;\n    constructor(newModel: string, newKm: number) {\n        this.model = newModel;\n        this.km = newKm;\n    }\n    drive(km: number) {\n        this.km = this.km + km;\n    }\n}\n<\/pre>\n<p>Here we made sure that the car model is a <code>string<\/code> and the car number of km is a <code>number<\/code>.<\/p>\n<p>Now running <code>new Car(\"Renault Twingo\", \"100000\")<\/code> (note that the second argument is a string) will return an error.<\/p>\n<h3>Interface<\/h3>\n<blockquote><p>\n  In TypeScript, interfaces fill the role of naming these types, and are a powerful way of defining contracts within your code as well as contracts with code outside of your project.\n<\/p><\/blockquote>\n<h4>Class Types<\/h4>\n<p>Interfaces are capable of describing the wide range of shapes that JavaScript objects can take. In addition to describing an object with properties, interfaces are also able to describe function types.<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\ninterface CarInterface {\n    model: string;\n    km: number;\n    drive(km: number);\n    getKm();\n}\n\nclass Car implements CarInterface {\n    model: string;\n    km: number;\n    constructor(newModel: string, newKm: number) {\n        this.model = newModel;\n        this.km = newKm;\n    }\n    drive(km: number) {\n        this.km = this.km + km;\n    }\n    getKm() {\n        return `${this.km} km`;\n    }\n}\n<\/pre>\n<p>Interfaces are a great feature to have. I personally use it when building applications that are Web and Mobile compatible.<\/p>\n<p>With an interface, I expose common properties and methods that we can implement. Then, we can have <code>CarMobile<\/code> and <code>CarWeb<\/code> Classes that expose the same API but implement methods in a different way (for instance using Ionic service on mobile and Bootstrap service on Web).<\/p>\n<h3>IDE support<\/h3>\n<p>What I really like about TypeScript is the IDE support. Whether you use Atom, WebStorm or SublimeText you will still have plugins to enable autocompletion, type checking and linter.<\/p>\n\n<hr \/>\n<h2>Webpack<\/h2>\n<p>Webpack is a module bundler that is quite popular lately in the React community, but now also in the Angular2 community.<\/p>\n<p>You can forget about Grunt or Gulp scripts that need to be maintained. Webpack allows you to require any type of file (.js, .coffee, .css, .scss, .png, .jpg, .svg, etc.) and pipe them through <strong>loaders<\/strong> to generate static assets, available to your application.<\/p>\n<p>If you need examples on how Webpack works I suggest you go check out a previous post of mine: <a href=\"http:\/\/julienrenaux.fr\/2015\/03\/30\/introduction-to-webpack-with-practical-examples\/\">http:\/\/julienrenaux.fr\/2015\/03\/30\/introduction-to-webpack-with-practical-examples\/<\/a>.<\/p>\n<h3>Compilation phase<\/h3>\n<p>Having a compilation phase has a real advantage. It allows you to automate behavior that you have to do manually otherwise. For instance, autoprefixing your CSS to work with most of the Browsers.<\/p>\n<p>The following CSS with <code>-webkit-<\/code> and <code>-ms-<\/code> prefixes is really painful to write manually because you need to know which prefix to use on different cases.<\/p>\n<pre class=\"brush: css; title: ; notranslate\" title=\"\">\n.page-wrap {\n  display: -webkit-box;  \/* OLD - iOS 6-, Safari 3.1-6, BB7 *\/\n  display: -ms-flexbox;  \/* TWEENER - IE 10 *\/\n  display: -webkit-flex; \/* NEW - Safari 6.1+. iOS 7.1+, BB10 *\/\n  display: flex;         \/* NEW, Spec - Firefox, Chrome, Opera *\/\n}\n<\/pre>\n<p>If you use a compilation phase you could just write it that way:<\/p>\n<pre class=\"brush: css; title: ; notranslate\" title=\"\">\n.page-wrap {\n  display: flex;\n}\n<\/pre>\n<p>The CSS is now lighter, easier to understand and to maintain.<\/p>\n<p>Webpack allows you to &#8220;pipe&#8221; your CSS code into several loaders that will transform it. In that particular case, we want the <code>autoprefixer<\/code> loader to add prefixes compatible with the last 2 versions of all browsers.<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\n{\n    test: \/.css$\/,\n    loader: &quot;style!css!autoprefixer?browsers=last 2 versions&quot;\n}\n<\/pre>\n<h3>Catching syntax errors<\/h3>\n<p>Having a tool such as Webpack is great to catch potential JavaScript syntax errors even before running your code in the browser. With <a href=\"https:\/\/webpack.github.io\/docs\/webpack-dev-server.html\">webpack-dev-server<\/a> your code is compiled on the fly when any file is modified. Any syntax error will display this kind of message on your terminal:<\/p>\n<pre class=\"brush: bash; title: ; notranslate\" title=\"\">\nERROR in .\/lib\/home\/controller.js\nModule build failed: SyntaxError: \/Users\/shprink\/Sites\/test\/controller.js: Unexpected token (6:39)\n  4 |     var vm = this;\n  5 |\n&gt; 6 |     $scope.$on('$viewContentLoaded' () =&amp;gt; {\n    |                                    ^\n  7 |\n  8 |     });\n  9 |\n<\/pre>\n<p>Here we forgot to add a coma between <code>'$viewContentLoaded'<\/code> and our function.<\/p>\n<h3>Avoid CSS and template inline<\/h3>\n<p>ES6 introduces a really great feature which is multiline strings. Before ES6, a multiline string could be written that way:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\n&quot;&lt;h4&gt;Give me some keys!&lt;\/h4&gt;&quot; + \n&quot;&lt;div&gt;{{values}}&lt;\/div&gt;&quot;\n<\/pre>\n<p>or:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\n[&quot;&lt;h4&gt;Give me some keys!&lt;\/h4&gt;&quot;,\n&quot;&lt;div&gt;{{values}}&lt;\/div&gt;&quot;].join('')\n<\/pre>\n<p>Now with ES6, you can write it that way:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\n`\n    &lt;h4&gt;Give me some keys!&lt;\/h4&gt;\n    &lt;div&gt;{{values}}&lt;\/div&gt;\n`\n<\/pre>\n<p>This is really nice, but I am not a big fan of using it for HTML or CSS. In a lot of Angular2 examples you will see something like this:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\n@Component({\n    selector: &quot;app&quot;\n})\n@View({\n  styles: [`\n     .container{\n        color: red;\n     }\n  `],\n  template: `\n    &lt;h4&gt;Give me some keys!&lt;\/h4&gt;\n    &lt;div&gt;&lt;input (keyup)=&quot;onKey($event)&quot;&gt;&lt;\/div&gt;\n    &lt;div&gt;{{values}}&lt;\/div&gt;\n  `\n})\n<\/pre>\n<p>While this is great for tutorials as it is concise and inline, it is, in my opinion, not good to use on your projects.<\/p>\n<p>The reason is fairly simple. When using CSS or HTML into a JavaScript file you loose all the great features that your IDE provides. For instance, you cannot correctly format your HTML or CSS and you do not have autocompletion.<\/p>\n<p>What I prefer to do is having separated HTML and CSS files so we can leverage IDE&#8217; features on them. With Webpack you could do something like this to import your HTML and CSS as strings:<\/p>\n<pre class=\"brush: typescript; title: ; notranslate\" title=\"\">\n@Component({\n    selector: &quot;app&quot;\n})\n@View({\n    directives: [Navbar, RouterOutlet],\n    styles: [require('.\/index.scss')],\n    template: require('.\/index.html')\n})\n<\/pre>\n<hr \/>\n<p>Thanks for reading, you can interact about this post by leaving a comment here, or directly on <a href=\"https:\/\/twitter.com\/julienrenaux\">Twitter<\/a> and <a href=\"https:\/\/www.facebook.com\/julienrenauxblog\/\">Facebook<\/a>!<\/p>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>This post presents my favorite tool stack (TypeScript &#038; Webpack) and explain why you should use it too with Angular2.<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 2589,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      4,
+      8,
+      9
+    ],
+    "tags": [
+      15,
+      16,
+      35,
+      84,
+      90
+    ],
+    "better_featured_image": {
+      "id": 2589,
+      "alt_text": "",
+      "caption": "",
+      "description": "",
+      "media_type": "image",
+      "media_details": {
+        "width": 600,
+        "height": 340,
+        "file": "2015\/12\/angular2.jpg",
+        "sizes": {
+          "thumbnail": {
+            "file": "angular2-150x150.jpg",
+            "width": 150,
+            "height": 150,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-150x150.jpg"
+          },
+          "medium": {
+            "file": "angular2-300x170.jpg",
+            "width": 300,
+            "height": 170,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-300x170.jpg"
+          }
+        },
+        "image_meta": {
+          "aperture": 0,
+          "credit": "",
+          "camera": "",
+          "caption": "",
+          "created_timestamp": 0,
+          "copyright": "",
+          "focal_length": 0,
+          "iso": 0,
+          "shutter_speed": 0,
+          "title": "",
+          "orientation": 0,
+          "keywords": []
+        }
+      },
+      "post": 2512,
+      "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2.jpg"
+    },
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2588"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2588"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2588\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media\/2589"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2588"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2588"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2588"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2583,
+    "date": "2015-11-30T02:37:41",
+    "date_gmt": "2015-11-30T01:37:41",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2385"
+    },
+    "modified": "2015-11-30T02:37:41",
+    "modified_gmt": "2015-11-30T01:37:41",
+    "slug": "angular2-series-introduction",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/11\/30\/angular2-series-introduction\/",
+    "title": {
+      "rendered": "Angular2 series &#8211; Introduction"
+    },
+    "content": {
+      "rendered": "<p>Angular2 is new, the quantity of blog posts is very limited at the moment and <a href=\"https:\/\/angular.io\/\">the documentation<\/a> is sometimes incomplete. In these conditions, it is hard to find the right information to start your own application.<\/p>\n<blockquote><p>\n  Before we start and to make sure we are in line on the terminology, I will use the name AngularJS to define AngularJS 1.x and Angular2 to define AngularJS 2.x.\n<\/p><\/blockquote>\n<p>Angular2 is a complete rewrite of the famous AngularJS that we love and that I have used for years. Angular2 uses modern Web standards (Web components, Shadow DOM etc.) which make it faster than AngularJS. It includes a wealth of essential features such as mobile gestures, animations, filtering, routing, data binding, security and internationalization.<\/p>\n<blockquote><p>\n  By going through this series of posts you will learn all you need to know about creating a complete application using Angular2 and TypeScript.\n<\/p><\/blockquote>\n<h2>Tooling<\/h2>\n<p><a href=\"http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-tooling\/\">http:\/\/julienrenaux.fr\/2015\/11\/30\/angular2-series-tooling\/<\/a><\/p>\n<h2>Template Syntax<\/h2>\n<p><a href=\"http:\/\/julienrenaux.fr\/2015\/12\/02\/angular2-series-template-syntax\/\">http:\/\/julienrenaux.fr\/2015\/12\/02\/angular2-series-template-syntax\/<\/a><\/p>\n<h2>Component, Directive, Pipe and Service<\/h2>\n<p><a href=\"http:\/\/julienrenaux.fr\/2015\/12\/13\/angular2-series-component-directive-pipe-and-service\/\">http:\/\/julienrenaux.fr\/2015\/12\/13\/angular2-series-component-directive-pipe-and-service\/<\/a><\/p>\n<h2>Routing<\/h2>\n<p><a href=\"http:\/\/julienrenaux.fr\/2015\/12\/25\/angular2-series-routing\/\">http:\/\/julienrenaux.fr\/2015\/12\/25\/angular2-series-routing\/<\/a><\/p>\n<h2>Http request<\/h2>\n<p>[Early 2016]<\/p>\n<h2>Change detection<\/h2>\n<p>[Early 2016]<\/p>\n<h2>V1 to V2 migration<\/h2>\n<p>[Early 2016]<\/p>\n<blockquote><p>\n  you can start preparing your code to be Angular2 compatible right now by following the advice I shared on: <a href=\"http:\/\/julienrenaux.fr\/2015\/08\/17\/modular-angularjs-and-ionic-architecture-a-first-step-towards-angularjs-2\/\">Modular AngularJS and Ionic architecture: a first step towards AngularJS 2<\/a>\n<\/p><\/blockquote>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>Angular2 is new, the quantity of blog posts is very limited at the moment and the documentation is sometimes incomplete. By going through this series of posts you will learn all you need to know about creating a complete application using Angular2 and TypeScript<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 2589,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      4,
+      9
+    ],
+    "tags": [
+      15,
+      16,
+      35,
+      84,
+      90
+    ],
+    "better_featured_image": {
+      "id": 2589,
+      "alt_text": "",
+      "caption": "",
+      "description": "",
+      "media_type": "image",
+      "media_details": {
+        "width": 600,
+        "height": 340,
+        "file": "2015\/12\/angular2.jpg",
+        "sizes": {
+          "thumbnail": {
+            "file": "angular2-150x150.jpg",
+            "width": 150,
+            "height": 150,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-150x150.jpg"
+          },
+          "medium": {
+            "file": "angular2-300x170.jpg",
+            "width": 300,
+            "height": 170,
+            "mime-type": "image\/jpeg",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2-300x170.jpg"
+          }
+        },
+        "image_meta": {
+          "aperture": 0,
+          "credit": "",
+          "camera": "",
+          "caption": "",
+          "created_timestamp": 0,
+          "copyright": "",
+          "focal_length": 0,
+          "iso": 0,
+          "shutter_speed": 0,
+          "title": "",
+          "orientation": 0,
+          "keywords": []
+        }
+      },
+      "post": 2512,
+      "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/12\/angular2.jpg"
+    },
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2583"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2583"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2583\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media\/2589"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2583"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2583"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2583"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2584,
+    "date": "2015-11-23T05:44:10",
+    "date_gmt": "2015-11-23T04:44:10",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2420"
+    },
+    "modified": "2015-11-23T05:44:10",
+    "modified_gmt": "2015-11-23T04:44:10",
+    "slug": "trendingdevs-com-best-developers-in-town",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/11\/23\/trendingdevs-com-best-developers-in-town\/",
+    "title": {
+      "rendered": "TrendingDevs.com &#8211; Best developers in town!"
+    },
+    "content": {
+      "rendered": "<p>I am more than happy to announced the release of <a href=\"http:\/\/app.trendingdevs.com\/\">app.trendingdevs.com<\/a>.<\/p>\n<p>This application aims to give developers the exposition they deserve, regarding their involvement in Open Source projects.<\/p>\n<p>Being a good developer is not only about having stars on GitHub, but also about hard working, sharing knowledge and keeping learning. Our ranking algorithm takes into account all of these criteria and reveals the best developers in town!<\/p>\n\n<p>I hope you will like it as much as I loved putting it together. You can follow us on <a href=\"https:\/\/twitter.com\/Trending_Devs\">Twitter<\/a> or on <a href=\"https:\/\/www.facebook.com\/TrendingDevs\/\">Facebook<\/a>.<\/p>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>I am more than happy to announced the release of app.trendingdevs.com. This application aims to give developers the exposition they deserve, regarding their involvement in Open Source projects.<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 2591,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      101
+    ],
+    "tags": [
+      16
+    ],
+    "better_featured_image": {
+      "id": 2591,
+      "alt_text": "",
+      "caption": "",
+      "description": "",
+      "media_type": "image",
+      "media_details": {
+        "width": 1578,
+        "height": 864,
+        "file": "2015\/11\/Screen-Shot-2015-12-08-at-11.29.28.png",
+        "sizes": {
+          "thumbnail": {
+            "file": "Screen-Shot-2015-12-08-at-11.29.28-150x150.png",
+            "width": 150,
+            "height": 150,
+            "mime-type": "image\/png",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/11\/Screen-Shot-2015-12-08-at-11.29.28-150x150.png"
+          },
+          "medium": {
+            "file": "Screen-Shot-2015-12-08-at-11.29.28-300x164.png",
+            "width": 300,
+            "height": 164,
+            "mime-type": "image\/png",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/11\/Screen-Shot-2015-12-08-at-11.29.28-300x164.png"
+          },
+          "medium_large": {
+            "file": "Screen-Shot-2015-12-08-at-11.29.28-768x421.png",
+            "width": 768,
+            "height": 421,
+            "mime-type": "image\/png",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/11\/Screen-Shot-2015-12-08-at-11.29.28-768x421.png"
+          },
+          "large": {
+            "file": "Screen-Shot-2015-12-08-at-11.29.28-1024x561.png",
+            "width": 1024,
+            "height": 561,
+            "mime-type": "image\/png",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/11\/Screen-Shot-2015-12-08-at-11.29.28-1024x561.png"
+          },
+          "post-thumbnail": {
+            "file": "Screen-Shot-2015-12-08-at-11.29.28-825x510.png",
+            "width": 825,
+            "height": 510,
+            "mime-type": "image\/png",
+            "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/11\/Screen-Shot-2015-12-08-at-11.29.28-825x510.png"
+          }
+        },
+        "image_meta": {
+          "aperture": 0,
+          "credit": "",
+          "camera": "",
+          "caption": "",
+          "created_timestamp": 0,
+          "copyright": "",
+          "focal_length": 0,
+          "iso": 0,
+          "shutter_speed": 0,
+          "title": "",
+          "orientation": 0,
+          "keywords": []
+        }
+      },
+      "post": 2584,
+      "source_url": "http:\/\/dev.julienrenaux.fr\/wp-content\/uploads\/2015\/11\/Screen-Shot-2015-12-08-at-11.29.28.png"
+    },
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2584"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2584"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2584\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/featuredmedia": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media\/2591"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2584"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2584"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2584"
+        }
+      ]
+    }
+  },
+  {
+    "id": 1,
+    "date": "2015-11-20T15:03:39",
+    "date_gmt": "2015-11-20T15:03:39",
+    "guid": {
+      "rendered": "http:\/\/dev.julienrenaux.fr\/?p=1"
+    },
+    "modified": "2016-01-06T03:53:16",
+    "modified_gmt": "2016-01-06T03:53:16",
+    "slug": "hello-world",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/11\/20\/hello-world\/",
+    "title": {
+      "rendered": "Hello world!"
+    },
+    "content": {
+      "rendered": "<p>Welcome to WordPress. This is your first post. Edit or delete it, then start writing!<\/p>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>Welcome to WordPress. This is your first post. Edit or delete it, then start writing!<\/p>\n"
+    },
+    "author": 13,
+    "featured_media": 0,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      1
+    ],
+    "tags": [],
+    "better_featured_image": null,
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/1"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/13"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=1"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/1\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=1"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=1"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=1"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2364,
+    "date": "2015-10-21T07:19:15",
+    "date_gmt": "2015-10-21T05:19:15",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2364"
+    },
+    "modified": "2015-10-21T07:19:15",
+    "modified_gmt": "2015-10-21T05:19:15",
+    "slug": "ionic2-webpack-and-ecmascript6-boilerplate",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/10\/21\/ionic2-webpack-and-ecmascript6-boilerplate\/",
+    "title": {
+      "rendered": "Ionic2, Webpack and ECMAScript6 boilerplate"
+    },
+    "content": {
+      "rendered": "<p>Today we had the chance to discover a Ionic2 presentation by <a href=\"https:\/\/twitter.com\/adamdbradley\">@adamdbradley<\/a> at AngularConnect London!<\/p>\n<div class=\"jetpack-video-wrapper\"><span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe class='youtube-player' type='text\/html' width='660' height='402' src='http:\/\/www.youtube.com\/embed\/43vanF4YwRI?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;start=2838&#038;wmode=transparent' allowfullscreen='true' style='border:0;'><\/iframe><\/span><\/div>\n<p>This presentation announces the alpha release of Ionic2 and shares the <a href=\"http:\/\/ionicframework.com\/docs\/v2\/getting-started\/installation\/\">documentation<\/a> on how to start building your own app with Ionic2.<\/p>\n<p>As I got pretty excited I also created a boilerplate based on the <code>cutePuppyPics<\/code> starter kit by ionic team. My version is enhanced in many ways:<\/p>\n<ol>\n<li>removes gulp dependency (only webpack is needed and because you&#8217;re worth it \ud83d\ude09<\/li>\n<li>removes ionic-cli dependency (only cordova and webpack-dev-server are needed)<\/li>\n<li>removes dist files (only the sources are committed)<\/li>\n<\/ol>\n<p>Running this boilerplate is as easy as running these two commands:<\/p>\n<pre class=\"brush: bash; title: ; notranslate\" title=\"\">\n# Install dependencies\nnpm install\n\n# Run the dev server\nnpm run devserver\n<\/pre>\n<p>Now open your browser on <code>http:\/\/localhost:8080\/<\/code> and enjoy Ionic2 <img src=\"http:\/\/dev.julienrenaux.fr\/wp-includes\/images\/smilies\/simple-smile.png\" alt=\":)\" class=\"wp-smiley\" style=\"height: 1em; max-height: 1em;\" \/><\/p>\n<h2>Demo (3mb, can be pretty slow to load..)<\/h2>\n<div id=\"phone-case-wrapper\">\n<div>\n       <iframe src=\"http:\/\/examples.julienrenaux.fr\/ionic2-webpack-ES6-boilerplate\"><\/iframe>\n    <\/div>\n<\/div>\n<p>Source available on Github : <a href=\"https:\/\/github.com\/shprink\/ionic2-webpack-ES6-boilerplate\">https:\/\/github.com\/shprink\/ionic2-webpack-ES6-boilerplate<\/a><\/p>\n<style>\n    #phone-case-wrapper{\n       position: relative;\n       width: 365px;\n       height: 792px; \n       margin: auto;\n       background: url(\"http:\/\/julienrenaux.fr\/wp-content\/uploads\/2014\/09\/phone-case.png\") no-repeat left top;\n       margin-bottom: 20px;\n    }\n    #phone-case-wrapper > div {\n        position: absolute;\n        top: 104px;\n        left: 20px;\n        width: 328px;\n        height: 576px;\n        border: 4px solid #22272d;\n        background-color: white;\n    }\n    #phone-case-wrapper > div > iframe {\n        width: 100%;\n        height: 100%;\n        \/* cursor: url('http:\/\/julienrenaux.fr\/wp-content\/uploads\/2014\/09\/finger.png'), auto; *\/\n    }\n}\n<\/style>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>Today Ionic2 alpha was released along with new examples and boilerplates. Following this release I decided to create my own using Webpack and ECMAScript6.<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 0,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      4,
+      5
+    ],
+    "tags": [
+      15,
+      16,
+      35,
+      46,
+      49,
+      50
+    ],
+    "better_featured_image": null,
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2364"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2364"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2364\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2364"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2364"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2364"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2360,
+    "date": "2015-10-15T04:43:25",
+    "date_gmt": "2015-10-15T02:43:25",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2360"
+    },
+    "modified": "2015-10-15T04:43:25",
+    "modified_gmt": "2015-10-15T02:43:25",
+    "slug": "how-to-install-nodejs-4-x-on-ubuntu",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/10\/15\/how-to-install-nodejs-4-x-on-ubuntu\/",
+    "title": {
+      "rendered": "How to install NodeJS 4.x on Ubuntu"
+    },
+    "content": {
+      "rendered": "<h2>Via NVM (Node Version Manager)<\/h2>\n<pre class=\"brush: bash; title: ; notranslate\" title=\"\">\n# get the latest nvm release https:\/\/github.com\/creationix\/nvm\/releases\ncurl https:\/\/raw.githubusercontent.com\/creationix\/nvm\/v0.29.0\/install.sh | bash\n\n# OR\nwget -qO- https:\/\/raw.githubusercontent.com\/creationix\/nvm\/v0.29.0\/install.sh | bash\n\n# Restart your terminal or run\nsource ~\/.profile\n\n# Install the NodeJS version needed\nnvm install 4.1\n\n# update npm\nnpm install npm -g\n<\/pre>\n<h2>Via PPA<\/h2>\n<pre class=\"brush: bash; title: ; notranslate\" title=\"\">\ncurl -sL https:\/\/deb.nodesource.com\/setup_4.x | sudo bash -\nsudo apt-get install -y nodejs\n\n# update npm\nnpm install npm -g\n<\/pre>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>There are many ways to install NodeJS on Ubuntu (Linux). This post demonstrate how easy it could be using NVM (Node Version Manager)<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 0,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      7,
+      9
+    ],
+    "tags": [
+      67
+    ],
+    "better_featured_image": null,
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2360"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2360"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2360\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2360"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2360"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2360"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2357,
+    "date": "2015-10-08T23:04:36",
+    "date_gmt": "2015-10-08T21:04:36",
+    "guid": {
+      "rendered": "http:\/\/julienrenaux.fr\/?p=2357"
+    },
+    "modified": "2015-10-08T23:04:36",
+    "modified_gmt": "2015-10-08T21:04:36",
+    "slug": "wordpress-hybrid-client-v1-7-x-now-with-native-transitions",
+    "type": "post",
+    "link": "http:\/\/dev.julienrenaux.fr\/2015\/10\/08\/wordpress-hybrid-client-v1-7-x-now-with-native-transitions\/",
+    "title": {
+      "rendered": "WordPress Hybrid Client: v1.7.x now with native transitions"
+    },
+    "content": {
+      "rendered": "<p>I am happy to announce the release of WPHC 1.7.x, this release adds native transitions by default to WPHC.<\/p>\n<p>Under the hood WPHC uses <a href=\"https:\/\/github.com\/shprink\/ionic-native-transitions\">https:\/\/github.com\/shprink\/ionic-native-transitions<\/a> another plugin that I created to simplify native transitions usage on Ionic applications.<\/p>\n<p>You can change the default options or disable native transitions using the configuration:<\/p>\n<pre class=\"brush: jscript; title: ; notranslate\" title=\"\">\n&quot;cordova&quot;: {\n    &quot;nativeTransitions&quot;: {\n        &quot;enabled&quot;: true,\n        &quot;options&quot;: {\n            &quot;duration&quot;: 400,\n            &quot;slowdownfactor&quot;: 4,\n            &quot;iosdelay&quot;: 60,\n            &quot;androiddelay&quot;: 280,\n            &quot;winphonedelay&quot;: 200,\n            &quot;fixedPixelsTop&quot;: 0,\n            &quot;fixedPixelsBottom&quot;: 0\n        }\n    }\n}\n<\/pre>\n<p><a href=\"http:\/\/wphc.julienrenaux.fr\">WordPress Hybrid Client (WPHC)<\/a> is an Open Source project available on <a href=\"https:\/\/github.com\/shprink\/wordpress-hybrid-client\">GitHub<\/a>.<\/p>\n<p>You can refer to the online <a href=\"http:\/\/wphc.julienrenaux.fr\/getting-started.html\">documentation<\/a> to properly build your applications. A Computer science background is required but the explanations should be clear enough.<\/p>\n<h2>1.7.0 ChangeLog<\/h2>\n<p><a href=\"https:\/\/github.com\/shprink\/wordpress-hybrid-client\/milestones\/1.7.0\">milestone<\/a><\/p>\n<ul>\n<li>Adding native transitions <a href=\"https:\/\/github.com\/shprink\/wordpress-hybrid-client\/issues\/91\">https:\/\/github.com\/shprink\/wordpress-hybrid-client\/issues\/91<\/a><\/li>\n<\/ul>\n"
+    },
+    "excerpt": {
+      "rendered": "<p>I am happy to announce the release of WPHC 1.7.x, this release adds native transitions by default to WPHC.<\/p>\n"
+    },
+    "author": 1,
+    "featured_media": 0,
+    "comment_status": "open",
+    "ping_status": "open",
+    "sticky": false,
+    "format": "standard",
+    "categories": [
+      10
+    ],
+    "tags": [
+      16,
+      46,
+      49
+    ],
+    "better_featured_image": null,
+    "read": true,
+    "_links": {
+      "self": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2357"
+        }
+      ],
+      "collection": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts"
+        }
+      ],
+      "about": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/types\/post"
+        }
+      ],
+      "author": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/users\/1"
+        }
+      ],
+      "replies": [
+        {
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/comments?post=2357"
+        }
+      ],
+      "version-history": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/posts\/2357\/revisions"
+        }
+      ],
+      "https:\/\/api.w.org\/attachment": [
+        {
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/media?parent=2357"
+        }
+      ],
+      "https:\/\/api.w.org\/term": [
+        {
+          "taxonomy": "category",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/categories?post=2357"
+        },
+        {
+          "taxonomy": "post_tag",
+          "embeddable": true,
+          "href": "http:\/\/dev.julienrenaux.fr\/wp-json\/wp\/v2\/tags?post=2357"
+        }
+      ]
+    }
+  }
+]

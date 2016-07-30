@@ -2,24 +2,18 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "noImplicitAny": false,
-    "rootDir": "src",
-    "outDir": "dist",
-    "sourceMap": true,
-    "inlineSources": true,
-    "declaration": true,
-    "removeComments": true
+    "removeComments": false,
+    "noImplicitAny": false
   },
   "files": [
-    "src/ionic-wordpress.ts",
+    "demo/app.ts",
     "typings/index.d.ts",
     "typings/commonjs.d.ts",
     "typings/webpack.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
   ],
   "compileOnSave": false,
   "atom": {

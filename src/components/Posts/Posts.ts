@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { NavController } from 'ionic-angular';
 
 @Component({
   selector: 'ion-wp-posts',
@@ -7,8 +6,5 @@ import { NavController } from 'ionic-angular';
 })
 export default class Posts {
 
-  constructor(
-    public nav: NavController
-  ) {
-  }
+  constructor() {}
 }

@@ -20,7 +20,6 @@ export default class Home {
   ) {
   }
   goTo(component) {
-    console.log('goTo', component)
     this.nav.push(component);
   }
 }
